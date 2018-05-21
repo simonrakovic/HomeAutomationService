@@ -8,7 +8,25 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+      .form{
+        margin-top: 50px;
+      }
+      label{
+        text-transform: uppercase;
+        font-weight: bold;
+      }
 
+      .btn-danger{
+        margin-top: 50px;
+        font-size: 2.5em;
+        height: 240px;
+      }
+
+      .disabled{
+        display: none;
+      }
+    </style>
   </head>
   <body>
     <div class="container-fluid">
@@ -17,25 +35,25 @@
 
         </div>
         <div class="col-sm-12 col-xs-12 col-md-6">
+          <div class="form" id="formInputs">
+            <div class="form-group">
+              <label  for="formControlSelect">Izberi zalivalko</label>
+              <select class="form-control" id="inputSelect">
+                <option value="1">Leva zalivalka</option>
+                <option value="2">Desna zalivalka</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <input type="number" class="form-control" id="formInput" placeholder="Čas zalivanja v minutah">
+            </div>
 
 
-              <div class="form-group">
-                <label for="exampleFormControlSelect1">Izberi zalivalko</label>
-                <select class="form-control" id="inputSelect">
-                  <option>1</option>
-                  <option>2</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <input type="number" class="form-control" id="formGroupExampleInput" placeholder="Čas zalivanja v minutah">
-              </div>
-
-              <button id="buttonSendStart" class="btn">Zalivaj</button>
-              <button id="buttonSendStop" class="btn btn-danger">Ustavi zalivanje</button>
-
-
+          </div>
+          <button id="buttonSendStart" class="btn btn-block btn-lg">Zalivaj</button>
+          <button id="buttonSendStop" class="btn btn-danger btn-block disabled">Ustavi zalivanje</button>
         </div>
+
         <div class="col-md-3">
 
         </div>
@@ -49,8 +67,10 @@
           .then(function (response) {
             if(response.data === "active"){
               $("#buttonSendStart").addClass("disabled")
+              $("#formInputs").addClass("disabled")
             }else{
               $("#buttonSendStop").addClass("disabled")
+              $("#formInputs").removeClass("disabled")
             }
           })
           .catch(function (error) {
@@ -61,11 +81,13 @@
         $('#buttonSendStart').click(function(){
           if(!$(this).hasClass("disabled")){
             var id = $("#inputSelect").val()
-            var cas = $("#formGroupExampleInput").val()
+            var cas = $("#formInput").val()
             axios.get(`/api/zalivaj/${id}/${cas}`)
               .then(function (response) {
                 $("#buttonSendStart").addClass("disabled")
                 $("#buttonSendStop").removeClass("disabled")
+
+                $("#formInputs").addClass("disabled")
               })
               .catch(function (error) {
                 console.log(error);
@@ -79,6 +101,7 @@
               .then(function (response) {
                 $("#buttonSendStart").removeClass("disabled")
                 $("#buttonSendStop").addClass("disabled")
+                $("#formInputs").removeClass("disabled")
               })
               .catch(function (error) {
                 console.log(error);
