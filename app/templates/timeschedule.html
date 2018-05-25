@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Zalivanje</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+      .form{
+        margin-top: 50px;
+      }
+      label{
+        text-transform: uppercase;
+        font-weight: bold;
+      }
+
+      .btn-danger{
+        margin-top: 50px;
+        font-size: 2.5em;
+        height: 240px;
+      }
+
+      .disabled{
+        display: none;
+      }
+
+      .glyphicon{
+        font-size: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-sm-12 col-xs-12 col-md-8">
+          <div class="form" id="formInputs">
+            <div class="row">
+              <div class="col-sm-12 col-md-3">
+                <div class="form-group">
+
+                  <select class="form-control" id="inputSelect">
+                    <option value="1">Leva zalivalka</option>
+                    <option value="2">Desna zalivalka</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-sm-12 col-md-3">
+                <div class="form-group">
+                  <input type="time" class="form-control" id="formInputTime" placeholder="Ura pričetka zalivanja">
+                </div>
+              </div>
+              <div class="col-sm-12 col-md-3">
+                <div class="form-group">
+                  <input type="number" class="form-control" id="formInputLength" placeholder="Čas zalivanja v minutah">
+                </div>
+              </div>
+
+              <div class="col-sm-12 col-md-3">
+                <button id="buttonSendSave" class="btn btn-block ">Shrani</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="col-md-2"></div>
+      </div>
+      <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+          <table id="scheduleTable" class="table responsive">
+            <thead>
+              <tr>
+                <th>
+                  Zalivalka
+                </th>
+                <th>
+                  Ura pričetka
+                </th>
+                <th>
+                  Čas zalivanja
+                </th>
+                <th>
+
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "localhost:5000"
+
+      function addRowToTable(data, index){
+        var row = document.createElement("tr")
+        var id = document.createElement("td")
+        var time = document.createElement("td")
+        var length = document.createElement("td")
+        var del = document.createElement("td")
+
+        id.appendChild(document.createTextNode(data.id))
+        time.appendChild(document.createTextNode(data.time))
+        length.appendChild(document.createTextNode(data.length))
+
+        del.setAttribute("class", "buttonDeleteRow")
+        del.setAttribute("id", index)
+        del.appendChild(document.createTextNode("Izbriši"))
+
+        row.appendChild(id)
+        row.appendChild(time)
+        row.appendChild(length)
+        row.appendChild(del)
+
+        $("#scheduleTable tbody").append(row)
+      }
+
+      $(document).ready(()=>{
+        axios.get(`/api/get/timer`)
+          .then(function (response) {
+            response.data.forEach((data, i)=>{
+              addRowToTable(data, i)
+            })
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+
+        $('#buttonSendSave').click(function(){
+
+            var id = $("#inputSelect").val()
+            var time = $("#formInputTime").val()
+
+            var length = $("#formInputLength").val()
+
+            var data = {
+              id: id,
+              time: time,
+              length: length
+            }
+
+            axios.post(`/api/add/timer`, data)
+              .then(function (response) {
+                  addRowToTable(data, response.data)
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+
+        });
+
+        $('.buttonDeleteRow').click(function(){
+          alert($(this).getAttribute("id"))
+        })
+      })
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>
